@@ -7,6 +7,18 @@
 
 class Sheet : public SheetInterface {
 public:
+    struct Hasher {
+        size_t operator()(const Position& pos) const {
+            return std::hash<int>()(pos.row) + 37 * std::hash<int>()(pos.col);
+        }
+    };
+
+    struct Comparator {
+        bool operator()(const Position& lhs, const Position& rhs) const {
+            return lhs == rhs;
+        }
+    };
+    
     ~Sheet();
 
     void SetCell(Position pos, std::string text) override;
@@ -20,15 +32,12 @@ public:
 
     void PrintValues(std::ostream& output) const override;
     void PrintTexts(std::ostream& output) const override;
-
-    const Cell* GetConcreteCell(Position pos) const;
-    Cell* GetConcreteCell(Position pos);
+    
+    void Print(std::ostream&, std::function<std::string(const Cell&)>) const;
+    
+    const Cell* GetCellPtr(Position pos) const;
+    Cell* GetCellPtr(Position pos);    
 
 private:
-    void MaybeIncreaseSizeToIncludePosition(Position pos);
-    void PrintCells(std::ostream& output,
-                    const std::function<void(const CellInterface&)>& printCell) const;
-    Size GetActualSize() const;
-
-    std::vector<std::vector<std::unique_ptr<Cell>>> cells_;
+    std::unordered_map<Position, Cell, Hasher, Comparator> cells_;
 };
