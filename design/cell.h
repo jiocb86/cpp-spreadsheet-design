@@ -18,7 +18,19 @@ public:
     std::vector<Position> GetReferencedCells() const override;
 
 private:
-    class Impl;    
+    class Impl {
+    public:
+        virtual Value GetValue() const = 0;
+        virtual std::string GetText() const = 0;
+        virtual std::vector<Position> GetReferencedCells() const {
+            return {};
+        }
+        virtual bool HasCache() const {
+            return true;
+        }
+        virtual void InvalidateCache() {}        
+        virtual ~Impl() = default;
+    }; 
     class EmptyImpl;    
     class TextImpl;    
     class FormulaImpl;
